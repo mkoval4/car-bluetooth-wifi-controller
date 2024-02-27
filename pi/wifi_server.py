@@ -7,15 +7,23 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     s.bind((HOST, PORT))
     s.listen()
 
-    try:
-        while 1:
+    while True:
+        try:
             client, clientInfo = s.accept()
-            print("server recv from: ", clientInfo)
-            data = client.recv(1024)      # receive 1024 Bytes of message in binary format
-            if data != b"":
-                print(data)     
-                client.sendall(data) # Echo back to client
-    except: 
-        print("Closing socket")
-        client.close()
-        s.close()    
+            print("Connected to:", clientInfo)
+
+            with client:
+                while True:
+                    data = client.recv(1024)
+                    if not data:
+                        print("Connection closed by", clientInfo)
+                        break
+                    print("Received:", data.decode())
+                    client.sendall(data)  # Echo back to client
+        except KeyboardInterrupt:
+            print("Server interrupted by user")
+            break
+        except Exception as e:
+            print("Error occurred:", e)
+
+print("Closing socket")
