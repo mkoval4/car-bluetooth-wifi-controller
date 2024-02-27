@@ -1,29 +1,48 @@
-const { app, BrowserWindow } = require('electron');
-const path = require('path');
+const { app, BrowserWindow, ipcMain, nativeTheme } = require('electron/main')
+const path = require('node:path')
+const Client = require('./client')
 
-function createWindow() {
-    const mainWindow = new BrowserWindow({
-        width: 1000,
-        height: 1000,
-        webPreferences: {
-            nodeIntegration: true,
-            contextIsolation: false,
-            preload: path.join(__dirname, 'preload.js')
-        }
-    });
+function createWindow () {
+  const win = new BrowserWindow({
+    width: 800,
+    height: 600,
+    webPreferences: {
+      preload: path.join(__dirname, 'preload.js')
+    }
+  })
 
-    mainWindow.loadFile('index.html');
+  win.loadFile('index.html')
 }
 
-app.whenReady().then(() => {
-    createWindow()
-    
-    app.on('activate', function () {
-      if (BrowserWindow.getAllWindows().length === 0) createWindow()
-    })
-  })
-  
+HOST = "192.168.2.18" // IP address of your Raspberry PI
+PORT = 65432          // The port used by the server
 
-  app.on('window-all-closed', function () {
-    app.quit()
+mainClient = new Client(PORT, HOST)
+mainClient.connect()
+
+ipcMain.handle('move-car:straight', () => {
+  console.log("Move Car Straight")
+  mainClient.send("Move Car Straight")
+})
+
+ipcMain.handle('move-car:reverse', () => {
+  console.log("Move Car Reverse")
+  mainClient.send("Move Car Reverse")
+})
+
+app.whenReady().then(() => {
+  createWindow()
+
+  app.on('activate', () => {
+    if (BrowserWindow.getAllWindows().length === 0) {
+      createWindow()
+    }
   })
+})
+
+app.on('window-all-closed', () => {
+  if (process.platform !== 'darwin') {
+    app.quit()
+    mainClient.disconnect()
+  }
+})
