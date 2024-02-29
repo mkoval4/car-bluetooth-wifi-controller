@@ -15,47 +15,41 @@ function createWindow () {
 }
 
 HOST = "192.168.2.18" // IP address of your Raspberry PI
-PORT = 65435          // The port used by the server
+PORT = 65433          // The port used by the server
 let counter = 0
 
 mainClient = new Client(PORT, HOST)
 mainClient.connect()
 
-ipcMain.handle('move-car:straight', () => {
-  console.log("Move Car Straight")
-  mainClient.send("Move Car Straight")
+ipcMain.handle('move-car:forward', () => {
+  mainClient.send("forward")
 })
 
 ipcMain.handle('move-car:reverse', () => {
-  console.log("Move Car Reverse")
-  mainClient.send("Move Car Reverse")
+  mainClient.send("reverse")
 })
 
 ipcMain.handle('move-car:left', () => {
-  console.log("Move Car Left")
-  mainClient.send("Move Car Left")
+  mainClient.send("left")
 })
 
 ipcMain.handle('move-car:right', () => {
-  console.log("Move Car Right")
-  mainClient.send("Move Car Right")
+  mainClient.send("right")
 })
 
-ipcMain.handle('move-car:selfDrive', () => {
-  console.log("Self Drive")
-  mainClient.send("Self Drive")
+ipcMain.handle('car-stats:get', async () => {
+  mainClient.send("get")
+  const data = await mainClient.receive()
+  console.log(data)
+  return data
 })
 
-ipcMain.handle('move-car:stopSelfDrive', () => {
-  console.log("Stop Self Drive")
-  mainClient.send("Stop Self Drive")
+ipcMain.handle('car-stats:updateLeftAngle', (event, angle) => {
+  mainClient.send(`leftAngle:${angle}`)
 })
 
-ipcMain.handle('move-car:get', () => {
-  console.log("Get Car Stats")
-  mainClient.send("Get Car Stats")
-  mainClient.receive()
-  return counter++
+ipcMain.handle('car-stats:updateRightAngle', (event, angle) => {
+  mainClient.send(`rightAngle:${angle}`)
 })
 
 app.whenReady().then(() => {
