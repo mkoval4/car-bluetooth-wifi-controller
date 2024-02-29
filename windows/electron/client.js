@@ -19,9 +19,7 @@ class Client {
 
     receive() {
         this.client.on('data', (data) => {
-            document.getElementById("greet_from_server").innerHTML = data;
-            console.log(data.toString());
-            this.client.end();
+            console.log(`Received from client: ${data.toString()}`);
         });
     }
 
