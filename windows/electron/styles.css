@@ -9,3 +9,14 @@
 @media (prefers-color-scheme: light) {
   body { background: #ddd; color: black; }
 }
+
+/* Style for the container holding the forms */
+.form-container {
+  display: flex; /* Use flexbox layout */
+}
+
+/* Style for each form */
+.form {
+  flex: 1; /* Each form takes up equal space */
+  margin-right: 10px; /* Add some space between forms */
+}

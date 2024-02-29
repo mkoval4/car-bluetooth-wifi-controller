@@ -18,8 +18,14 @@ class Client {
     }
 
     receive() {
-        this.client.on('data', (data) => {
-            console.log(`Received from client: ${data.toString()}`);
+        return new Promise((resolve, reject) => {
+            this.client.on('data', (data) => {
+                console.log('Received: ' + data.toString());
+                resolve(JSON.parse(data.toString()));
+            });
+            this.client.on('error', (error) => {
+                reject(error);
+            });
         });
     }
 
